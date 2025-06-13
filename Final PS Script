@@ -1,0 +1,195 @@
+# Define the base folder and script paths at the beginning of the script
+$baseFolderPath = "C:\Power BI Backups"
+$Script1Path = "$baseFolderPath\Config\Report Detail Extract Script.csx"
+$Script2Path = "$baseFolderPath\Config\Model Detail Extract Script.csx"
+$Script3Path = "$baseFolderPath\Config\Measure Dependency Extract Script.csx"
+
+$TabularEditor2Path = "C:\Program Files (x86)\Tabular Editor\TabularEditor.exe"
+
+# Check and set the execution policy
+$currentPolicy = Get-ExecutionPolicy -Scope CurrentUser
+if ($currentPolicy -eq 'Restricted' -or $currentPolicy -eq 'Undefined' -or $currentPolicy -eq 'AllSigned') {
+    Write-Host "Current execution policy is restrictive: $currentPolicy. Attempting to set to RemoteSigned."
+    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+    Write-Host "Execution policy set to RemoteSigned."
+} else {
+    Write-Host "Current execution policy is sufficient: $currentPolicy."
+}
+
+# Ensure required modules are installed, and imports them. If import fails, error and exit early
+$requiredModules = @( 'ImportExcel', 'MicrosoftPowerBIMgmt' )
+foreach ($module in $requiredModules) {
+    if( -not (Import-Module $module -PassThru -EA ignore) ) {
+       Install-Module -Name $module -Scope CurrentUser -Force
+    }
+
+    Import-Module $Module -ErrorAction 'stop' # In the rare case Install-Module fails, you probably want a terminating error
+}
+
+
+
+
+
+
+
+
+
+#### Start of Report Backup and VOL Extract ####
+
+
+
+
+
+
+
+
+# Start Tabular Editor process
+$p = Start-Process -filePath "$TabularEditor2Path" -Wait -NoNewWindow -PassThru `
+       -ArgumentList "`"$baseFolderPath\Config\Blank Model.bim`" -S `"$Script1Path`" -B `"localhost\tabular`" `"MyModel`""
+
+# Define the output Excel file path in the parent folder
+$outputExcelFile = Join-Path -Path $baseFolderPath -ChildPath "Report Detail.xlsx"
+
+# Check if the Excel file already exists and delete it if it does
+if (Test-Path -Path $outputExcelFile) {
+    Remove-Item $outputExcelFile -Force
+    $excelExists = $false
+} else {
+    $excelExists = $false
+}
+
+
+foreach ($txtFile in (Get-ChildItem -Path $baseFolderPath -Filter *.txt)) {
+    # Get the base name of the file (without extension) for the worksheet name
+    $worksheetName = [System.IO.Path]::GetFileNameWithoutExtension($txtFile.FullName)
+    
+    # Import the TXT file, assuming it's tab-delimited
+    $txtData = Get-Content -Path $txtFile.FullName -Encoding UTF8 | ConvertFrom-Csv -Delimiter "`t"
+
+    if ($excelExists) {
+        # Append data to the existing Excel file
+        $txtData | Export-Excel -Path $outputExcelFile -WorksheetName $worksheetName -AutoNameRange -Append
+    } else {
+        # Create a new Excel file with the data
+        $txtData | Export-Excel -Path $outputExcelFile -WorksheetName $worksheetName -AutoNameRange
+        $excelExists = $true
+    }
+}
+
+
+
+
+# Get only .pbix files in the base folder (not subfolders)
+$pbixFiles = Get-ChildItem -Path $baseFolderPath -Filter *.pbix -File
+
+foreach ($pbixFile in $pbixFiles) {
+    $pbixFilePath = $pbixFile.FullName
+    $pbixNameWithoutExtension = [System.IO.Path]::GetFileNameWithoutExtension($pbixFile.Name)
+    $extractFolder = Join-Path -Path $baseFolderPath -ChildPath "$pbixNameWithoutExtension.extract"
+    $bimFinalPath = Join-Path -Path $baseFolderPath -ChildPath "$pbixNameWithoutExtension.bim"
+
+    Write-Output "Extracting: $pbixFilePath"
+    pbi-tools extract $pbixFilePath -extractFolder $extractFolder -modelSerialization Raw
+
+    Write-Output "Generating .bim file..."
+    pbi-tools generate-bim $extractFolder -transforms RemovePBIDataSourceVersion
+
+    $bimGenerated = Get-ChildItem -Path $extractFolder -Filter *.bim -File | Select-Object -First 1
+    if ($bimGenerated) {
+        Move-Item -Path $bimGenerated.FullName -Destination $bimFinalPath -Force
+        Write-Output "Moved .bim to $bimFinalPath"
+    } else {
+        Write-Warning "No .bim file found in $extractFolder"
+    }
+
+    # Clean up extract folder
+    if (Test-Path $extractFolder) {
+        Remove-Item -Path $extractFolder -Recurse -Force
+        Write-Output "Removed extract folder: $extractFolder"
+    }
+}
+
+
+
+
+#### Start of Model Detail Script Run with Script2Path ####
+
+$bimFiles = Get-ChildItem -Path $baseFolderPath -Filter *.bim
+
+foreach ($bimFile in $bimFiles) {
+    $bimPath = $bimFile.FullName
+    $cleanFileName = [System.IO.Path]::GetFileNameWithoutExtension($bimFile.Name)
+
+    $modelScriptArgs = "`"$bimPath`" -S `"$Script2Path`" -B `"localhost\tabular`" `"MyModel`""
+    Start-Process -FilePath "$TabularEditor2Path" -Wait -NoNewWindow -PassThru -ArgumentList $modelScriptArgs
+}
+
+Write-Output "First model export and script run completed."
+
+#### Start of PowerShell Combining to Semantic Models Worksheet ####
+
+$outputExcelFile = Join-Path -Path $baseFolderPath -ChildPath "Model Detail.xlsx"
+
+if (Test-Path -Path $outputExcelFile) {
+    Remove-Item $outputExcelFile -Force
+}
+
+$semanticModelsCsvData = @()
+
+foreach ($csvFile in (Get-ChildItem -Path $baseFolderPath -Filter *.csv)) {
+    if ($csvFile.Name -notlike "*_MD.csv") {
+        $csvData = Import-Csv -Path $csvFile.FullName
+        $semanticModelsCsvData += $csvData
+    }
+}
+
+$semanticModelsCsvData | Export-Excel -Path $outputExcelFile -WorksheetName "Semantic Models" -AutoNameRange
+
+Write-Output "CSV files combined into the 'Semantic Models' worksheet in $outputExcelFile"
+
+#### Start of Model Detail Script Run with Script3Path ####
+
+foreach ($bimFile in $bimFiles) {
+    $bimPath = $bimFile.FullName
+    $cleanFileName = [System.IO.Path]::GetFileNameWithoutExtension($bimFile.Name)
+
+    $modelScriptArgs = "`"$bimPath`" -S `"$Script3Path`" -B `"localhost\tabular`" `"MyModel`""
+    Start-Process -FilePath "$TabularEditor2Path" -Wait -NoNewWindow -PassThru -ArgumentList $modelScriptArgs
+}
+
+Write-Output "Second model export and script run completed."
+
+#### Start of PowerShell Combining to Measure Dependencies Worksheet ####
+
+$measureDependenciesCsvData = @()
+
+foreach ($csvFile in (Get-ChildItem -Path $baseFolderPath -Filter *_MD.csv)) {
+    $csvData = Import-Csv -Path $csvFile.FullName
+    $measureDependenciesCsvData += $csvData
+}
+
+$measureDependenciesCsvData | Export-Excel -Path $outputExcelFile -WorksheetName "Measure Dependencies" -AutoNameRange -Append
+
+Write-Output "CSV files combined into the 'Measure Dependencies' worksheet in $outputExcelFile"
+
+
+ # Define the Script Outputs folder
+$scriptOutputsFolder = Join-Path -Path $baseFolderPath -ChildPath "Script Outputs"
+
+# Create the folder if it doesn't exist
+if (-not (Test-Path -Path $scriptOutputsFolder)) {
+    New-Item -Path $scriptOutputsFolder -ItemType Directory | Out-Null
+    Write-Output "Created folder: $scriptOutputsFolder"
+}
+
+# Define file extensions to move
+$fileExtensions = @("*.txt", "*.csv", "*.bim")
+
+# Move each file type
+foreach ($ext in $fileExtensions) {
+    $filesToMove = Get-ChildItem -Path $baseFolderPath -Filter $ext -File
+    foreach ($file in $filesToMove) {
+        $destinationPath = Join-Path -Path $scriptOutputsFolder -ChildPath $file.Name
+        Move-Item -Path $file.FullName -Destination $destinationPath -Force
+    }
+}
