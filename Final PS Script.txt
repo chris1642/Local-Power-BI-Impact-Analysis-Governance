@@ -5,7 +5,7 @@ $Script1Path = "$baseFolderPath\Config\Report Detail Extract Script.csx"
 $Script2Path = "$baseFolderPath\Config\Model Detail Extract Script.csx"
 $Script3Path = "$baseFolderPath\Config\Measure Dependency Extract Script.csx"
 
-$TabularEditor2Path = "C:\Program Files (x86)\Tabular Editor\TabularEditor.exe"
+$TabularEditor2Path = "$baseFolderPath\Config\TabularEditor\TabularEditor.exe"
 
 # Check and set the execution policy
 $currentPolicy = Get-ExecutionPolicy -Scope CurrentUser
