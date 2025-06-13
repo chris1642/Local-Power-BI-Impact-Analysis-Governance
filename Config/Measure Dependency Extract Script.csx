@@ -1,5 +1,6 @@
 // Define the base path for the backups
-var basePath = @"C:\Power BI Backups";
+
+var basePath = @"C:\Power BI Backups\Local Reports and Models";
 var addedPath = basePath;
 
 // Dynamically find the latest-dated folder
@@ -25,7 +26,6 @@ foreach (string folder in folders)
 // Use the latest-dated folder, or fallback to today's date if no valid folder is found
 var currentDateStr = latestFolder != null ? latestDate.ToString("yyyy-MM-dd") : DateTime.Now.ToString("yyyy-MM-dd");
 
-// Create the folder path for the backup
 var dateFolderPath = basePath;
 
 // Retrieve the model name
