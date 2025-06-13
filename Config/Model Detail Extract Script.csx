@@ -1,5 +1,5 @@
 // Define the base path for the backups
-var basePath = @"C:\Power BI Backups";
+var basePath = @"C:\Power BI Backups\Local Reports and Models";
 var addedPath = basePath;
 var modelName = Model.Database.Name; // Retrieve the model name
 var modelID = Model.Database.ID;
