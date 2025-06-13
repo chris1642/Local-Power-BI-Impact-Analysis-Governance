@@ -26,6 +26,46 @@ foreach ($module in $requiredModules) {
     Import-Module $Module -ErrorAction 'stop' # In the rare case Install-Module fails, you probably want a terminating error
 }
 
+# Check for PBI Tools folder and extract if necessary
+$PBIToolsFolderPath = Join-Path -Path $baseFolderPath\Config -ChildPath "PBI Tools"
+$PBIToolsZipPattern = "pbi-tools*.zip"
+
+if (-not (Test-Path -Path $PBIToolsFolderPath)) {
+    # Check if there is any zip file matching the pattern
+    $zipFile = Get-ChildItem -Path $baseFolderPath\Config -Filter $PBIToolsZipPattern | Select-Object -First 1
+    if ($zipFile) {
+        # Create the PBI Tools folder
+        New-Item -Path $PBIToolsFolderPath -ItemType Directory -Force
+        # Extract the zip file contents into the PBI Tools folder
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
+        [System.IO.Compression.ZipFile]::ExtractToDirectory($zipFile.FullName, $PBIToolsFolderPath)
+        Write-Output "Extracted $($zipFile.Name) to $PBIToolsFolderPath"
+    }
+}
+
+$ErrorActionPreference = "SilentlyContinue"
+
+# Define the folder path and zip pattern for Tabular Editor
+$TabularEditorFolderPath = Join-Path -Path $baseFolderPath\Config -ChildPath "TabularEditor"
+$TabularEditorZipPattern = "TabularEditor*.zip"
+
+if (-not (Test-Path -Path $TabularEditorFolderPath)) {
+    # Check if there is any zip file matching the pattern
+    $zipFile = Get-ChildItem -Path $baseFolderPath\Config -Filter $TabularEditorZipPattern | Select-Object -First 1
+    if ($zipFile) {
+        # Create the Tabular Editor folder
+        New-Item -Path $TabularEditorFolderPath -ItemType Directory -Force
+        # Extract the zip file contents into the Tabular Editor folder
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
+        [System.IO.Compression.ZipFile]::ExtractToDirectory($zipFile.FullName, $TabularEditorFolderPath)
+        Write-Output "Extracted $($zipFile.Name) to $TabularEditorFolderPath"
+    } else {
+        Write-Output "No zip file matching the pattern $TabularEditorZipPattern found in $baseFolderPath\Config"
+    }
+} else {
+    Write-Output "Tabular Editor folder already exists at $TabularEditorFolderPath"
+}
+
 
 
 
