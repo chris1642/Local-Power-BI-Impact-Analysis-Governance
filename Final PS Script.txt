@@ -233,3 +233,4 @@ foreach ($ext in $fileExtensions) {
         Move-Item -Path $file.FullName -Destination $destinationPath -Force
     }
 }
+ 
