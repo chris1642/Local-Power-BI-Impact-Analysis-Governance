@@ -1,5 +1,6 @@
 # Define the base folder and script paths at the beginning of the script
 $baseFolderPath = "C:\Power BI Backups"
+$localFilesFolderPath = "$baseFolderPath\Local Reports and Models"
 $Script1Path = "$baseFolderPath\Config\Report Detail Extract Script.csx"
 $Script2Path = "$baseFolderPath\Config\Model Detail Extract Script.csx"
 $Script3Path = "$baseFolderPath\Config\Measure Dependency Extract Script.csx"
@@ -99,7 +100,7 @@ if (Test-Path -Path $outputExcelFile) {
 }
 
 
-foreach ($txtFile in (Get-ChildItem -Path $baseFolderPath -Filter *.txt)) {
+foreach ($txtFile in (Get-ChildItem -Path $localFilesFolderPath -Filter *.txt)) {
     # Get the base name of the file (without extension) for the worksheet name
     $worksheetName = [System.IO.Path]::GetFileNameWithoutExtension($txtFile.FullName)
     
@@ -120,13 +121,13 @@ foreach ($txtFile in (Get-ChildItem -Path $baseFolderPath -Filter *.txt)) {
 
 
 # Get only .pbix files in the base folder (not subfolders)
-$pbixFiles = Get-ChildItem -Path $baseFolderPath -Filter *.pbix -File
+$pbixFiles = Get-ChildItem -Path $localFilesFolderPath -Filter *.pbix -File
 
 foreach ($pbixFile in $pbixFiles) {
     $pbixFilePath = $pbixFile.FullName
     $pbixNameWithoutExtension = [System.IO.Path]::GetFileNameWithoutExtension($pbixFile.Name)
-    $extractFolder = Join-Path -Path $baseFolderPath -ChildPath "$pbixNameWithoutExtension.extract"
-    $bimFinalPath = Join-Path -Path $baseFolderPath -ChildPath "$pbixNameWithoutExtension.bim"
+    $extractFolder = Join-Path -Path $localFilesFolderPath -ChildPath "$pbixNameWithoutExtension.extract"
+    $bimFinalPath = Join-Path -Path $localFilesFolderPath -ChildPath "$pbixNameWithoutExtension.bim"
 
     Write-Output "Extracting: $pbixFilePath"
     pbi-tools extract $pbixFilePath -extractFolder $extractFolder -modelSerialization Raw
@@ -154,7 +155,7 @@ foreach ($pbixFile in $pbixFiles) {
 
 #### Start of Model Detail Script Run with Script2Path ####
 
-$bimFiles = Get-ChildItem -Path $baseFolderPath -Filter *.bim
+$bimFiles = Get-ChildItem -Path $localFilesFolderPath -Filter *.bim
 
 foreach ($bimFile in $bimFiles) {
     $bimPath = $bimFile.FullName
@@ -176,7 +177,7 @@ if (Test-Path -Path $outputExcelFile) {
 
 $semanticModelsCsvData = @()
 
-foreach ($csvFile in (Get-ChildItem -Path $baseFolderPath -Filter *.csv)) {
+foreach ($csvFile in (Get-ChildItem -Path $localFilesFolderPath -Filter *.csv)) {
     if ($csvFile.Name -notlike "*_MD.csv") {
         $csvData = Import-Csv -Path $csvFile.FullName
         $semanticModelsCsvData += $csvData
@@ -203,7 +204,7 @@ Write-Output "Second model export and script run completed."
 
 $measureDependenciesCsvData = @()
 
-foreach ($csvFile in (Get-ChildItem -Path $baseFolderPath -Filter *_MD.csv)) {
+foreach ($csvFile in (Get-ChildItem -Path $localFilesFolderPath  -Filter *_MD.csv)) {
     $csvData = Import-Csv -Path $csvFile.FullName
     $measureDependenciesCsvData += $csvData
 }
@@ -214,7 +215,7 @@ Write-Output "CSV files combined into the 'Measure Dependencies' worksheet in $o
 
 
  # Define the Script Outputs folder
-$scriptOutputsFolder = Join-Path -Path $baseFolderPath -ChildPath "Script Outputs"
+$scriptOutputsFolder = Join-Path -Path $localFilesFolderPath -ChildPath "Script Outputs"
 
 # Create the folder if it doesn't exist
 if (-not (Test-Path -Path $scriptOutputsFolder)) {
@@ -227,7 +228,7 @@ $fileExtensions = @("*.txt", "*.csv", "*.bim")
 
 # Move each file type
 foreach ($ext in $fileExtensions) {
-    $filesToMove = Get-ChildItem -Path $baseFolderPath -Filter $ext -File
+    $filesToMove = Get-ChildItem -Path $localFilesFolderPath -Filter $ext -File
     foreach ($file in $filesToMove) {
         $destinationPath = Join-Path -Path $scriptOutputsFolder -ChildPath $file.Name
         Move-Item -Path $file.FullName -Destination $destinationPath -Force
