@@ -1,5 +1,7 @@
 
-## This all-in-one solution is designed to be ran by ANYONE. This is the LOCAL Report/Model Version. 
+## This all-in-one solution is designed to be ran by ANYONE.
+
+## This is the LOCAL Report/Model Version. 
 
 - If looking for the version that leverages the Power BI Service and REST API, please go here: https://github.com/chris1642/Power-BI-Backup-Impact-Analysis-Governance-Solution
 - Everything within the script is limited to your access within the Power BI environment.
