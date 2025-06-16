@@ -1,14 +1,12 @@
 
 # Local Power BI Governance & Impact Analysis Solution
 
-## All-in-one solution for local Power BI reports/models
+## All-in-one solution for getting a deeper understanding and analysis of your local Power BI reports/models
 
 *This is the local Report/Model Version. If looking for the version that leverages the Power BI Service and REST API across all Workspaces, check out: https://github.com/chris1642/Power-BI-Backup-Impact-Analysis-Governance-Solution*
 
 - All computer requirements are at the user level and do not require admin privileges.
 - There are ZERO pre-reqs. It's as simple as downloading this repo into C:\Power BI Backups, placing your local files in the dedicated folder, opening Powershell, and running the included 'Final PS Script'
-
-## All-in-one solution for local Power BI reports/models
 
 ## What It Does
 This provides a quick and automated way to identify where and how specific fields, measures, and tables are used across your local Power BI reports by analyzing the visual object layer. It also breaks down the details of your models and report for easy review, including full measure lineage, giving you an all-in-one **Power BI Governance** solution.
