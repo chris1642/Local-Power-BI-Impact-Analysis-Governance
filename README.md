@@ -1,8 +1,6 @@
 
 # Local Power BI Governance & Impact Analysis Solution
 
-## All-in-one solution for getting a deeper understanding and analysis of your local Power BI reports/models
-
 *This is the local Report/Model Version. If looking for the version that leverages the Power BI Service and REST API across all Workspaces, check out: https://github.com/chris1642/Power-BI-Backup-Impact-Analysis-Governance-Solution*
 
 - All computer requirements are at the user level and do not require admin privileges.
