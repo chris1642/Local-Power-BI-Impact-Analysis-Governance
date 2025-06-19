@@ -39,32 +39,24 @@ This provides a quick and automated way to identify where and how specific field
 ## Features
 
 
-### 1. Model Metadata Extract
+### 1. Model Metadata Extract - Measure Lineage, Used/Unused Objects
 - Saves exported models in a structured folder hierarchy based on model names.
 - Leverages Tabular Editor 2 and C# to extract the metadata and output within an Excel File.
-<img width="695" alt="image" src="https://github.com/user-attachments/assets/c3e021b8-6dfe-40c9-bfa5-b9d4471a8fa3">
 
-### 2. Report Metadata Extract
+### 2. Report Metadata Extract - Impact Analysis, Objects Usage - Where and How Often
 - Leverages Tabular Editor 2 and C# to extract the Visual Object Layer metadata and output within an Excel File (credit to @m-kovalsky for initial work on this)
-- <img width="554" alt="image" src="https://github.com/user-attachments/assets/cf88aac7-6f32-445a-96c7-6bc36fcab9aa">
-
-### 3. Model Connection Details Metadata Extract
-- Leverages Power BI REST API to gather all model connection details.
-- Exports the extracted metadata into the same structured excel workbook as the Power BI Environment Information Extract
-- You must have read permissions on the related model.
 
 ### 4. Final Power BI Governance Model
 - Combines extracts into a Semantic Model to allow easy exploring, impact analysis, and governance of all Power BI Reports and Models.
 - Works for anyone who runs the script and has at least 1 model and report.
-- Public example (limited due to no filter pane): https://app.powerbi.com/view?r=eyJrIjoiNmMxYWQ2ZTItZDM4ZS00MGM1LTlhMDQtN2I1OTMwMzI0OTg2IiwidCI6ImUyY2Y4N2QyLTYxMjktNGExYS1iZTczLTEzOGQyY2Y5OGJlMiJ9
+- Public example (limited due to no filter pane): https://app.powerbi.com/view?r=eyJrIjoiMTA4YzFjYjctYjJjZC00Yjk5LWEwNGItODY4MjNlYTUyNWQwIiwidCI6ImUyY2Y4N2QyLTYxMjktNGExYS1iZTczLTEzOGQyY2Y5OGJlMiJ9
 
 ## Screenshots of Final Output
 ..
 ..
 
-<img width="1235" alt="image" src="https://github.com/user-attachments/assets/805d3145-8290-4d84-8da2-bb27529bb050">
-<img width="1259" alt="image" src="https://github.com/user-attachments/assets/54212360-8d0f-44c5-9337-db2cdd0fb5ee">
-<img width="1259" alt="image" src="https://github.com/user-attachments/assets/9280e350-8714-40e5-8e09-d1de07faf5f5">
-<img width="1221" alt="image" src="https://github.com/user-attachments/assets/e120c1bb-b52a-4197-aeb3-2a6ddbb67a9f">
-<img width="1221" alt="image" src="https://github.com/user-attachments/assets/c9f5331d-8976-4f66-be76-5628e38e8d0f">
-<img width="1241" alt="image" src="https://github.com/user-attachments/assets/9d814034-494d-478b-b231-f759d7eebeab">
+<img width="1235" alt="image" src="https://github.com/user-attachments/assets/cd3d736d-a56b-4ff0-a1af-475ac149bc79">
+<img width="1259" alt="image" src="https://github.com/user-attachments/assets/89749b7a-a62a-4f89-94a9-2f922e66e47d">
+<img width="1259" alt="image" src="https://github.com/user-attachments/assets/d015863b-3136-4caa-85ae-1026d90ef338">
+<img width="1221" alt="image" src="https://github.com/user-attachments/assets/e683f8ec-2341-46d5-a93b-5511ec8bfb17">
+<img width="1221" alt="image" src="https://github.com/user-attachments/assets/db909853-4d5c-4024-82dc-b9552a82082a">
