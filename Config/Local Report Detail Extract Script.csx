@@ -969,6 +969,10 @@ catch (Exception ex)
                 visualName = visualType;
             }
 
+            // Capture the starting index so the visual's name can be applied to
+            // every VisualObject added for this visual below.
+            int voStartIndex = VisualObjects.Count;
+
             // Visual Hidden
             try
             {
@@ -2496,6 +2500,12 @@ catch (Exception ex)
             {
             }
 
+            // Apply the visual's name to every VisualObject captured for this visual
+            for (int voIdx = voStartIndex; voIdx < VisualObjects.Count; voIdx++)
+            {
+                VisualObjects[voIdx].VisualName = visualName;
+            }
+
             Visuals.Add(new Visual {
                 PageName = pageName, 
                 
@@ -3523,3 +3533,4 @@ public class ReportLevelMeasures
 }
 
 static void _() { // Comment out this line if using Tabular Editor 3
+
